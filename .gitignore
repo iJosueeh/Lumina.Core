@@ -1,0 +1,57 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.useros
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# Packages
+*.nupkg
+*.snupkg
+*.dll
+*.pdb
+
+# Rider
+.idea/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+publish/
+tmp/
+*.tmp
+*.log
+*.pid
+*.pid.lock
+
+# Test results
+TestResults/
+.trx
+
+# EF Core migrations
+Migrations/*.Designer.cs
+Migrations/*.cs
+Migrations/*.resx
+Migrations/*.cs.bak
+
+# Environment variables file
+/.env
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+
+# Other
+*.bak
+*~
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db

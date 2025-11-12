@@ -1,0 +1,8 @@
+# Set default line endings to LF for all text files
+* text=auto eol=lf
+
+# Enforce LF for specific file types commonly used in cross-platform projects
+*.cs text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
