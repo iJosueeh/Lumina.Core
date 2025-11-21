@@ -3,27 +3,21 @@ using Estudiantes.Application.Exceptions;
 
 namespace Estudiantes.Api.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
 
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context); // si no hay error continua
+            await _next(context);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ocurrio una excepcion: {Message}", ex.Message);
-            var excepcionDetail = GetExceptionDeails(ex); //obtener detalle de exceiciones
+            var excepcionDetail = GetExceptionDeails(ex);
             var problemDetail = new ProblemDetails
             {
                 Status = excepcionDetail.Status,
@@ -32,7 +26,7 @@ public class ExceptionHandlingMiddleware
                 Detail = excepcionDetail.Detail,
             };
 
-            if (excepcionDetail.Errors  is not null)
+            if (excepcionDetail.Errors is not null)
             {
                 problemDetail.Extensions["errors"] = excepcionDetail.Errors;
             }
@@ -45,7 +39,7 @@ public class ExceptionHandlingMiddleware
 
     private static ExceptionDetails GetExceptionDeails(Exception exception)
     {
-        return exception switch // nueva sintaxis
+        return exception switch
         {
             ValidationExceptions validationException => new ExceptionDetails(
                 StatusCodes.Status400BadRequest,
@@ -72,8 +66,4 @@ public class ExceptionHandlingMiddleware
         string Detail,
         IEnumerable<object>? Errors
     );
-
 }
-
-
-

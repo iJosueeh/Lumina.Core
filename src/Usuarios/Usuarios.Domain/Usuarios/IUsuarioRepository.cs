@@ -8,6 +8,11 @@ public interface IUsuarioRepository
 
     void Delete(Usuario usuario);
 
+    void Update(Usuario usuario);
+
+    Task<IEnumerable<Usuario>> GetAllAsync();
+
     Task<bool> ExisteCorreoAsync(CorreoElectronico correo, CancellationToken cancellationToken = default);
 
+    Task<Usuario?> GetByEmailAsync(CorreoElectronico email, CancellationToken cancellationToken = default);
 }

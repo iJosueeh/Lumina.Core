@@ -5,13 +5,7 @@ namespace Docentes.api.Controllers.CursosImpartidos;
 
 [ApiController]
 [Route("api/cursosImpartidos")]
-public class CursosImpartidosController  : ControllerBase
+public class CursosImpartidosController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public CursosImpartidosController(ISender sender)
-    {
-        _sender = sender;
-    }
-
+    private readonly ISender _sender = sender;
 }

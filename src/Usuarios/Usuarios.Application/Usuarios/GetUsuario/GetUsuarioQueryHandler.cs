@@ -5,14 +5,9 @@ using Usuarios.Domain.Abstractions;
 
 namespace Usuarios.Application.Usuarios.GetUsuario;
 
-internal sealed class GetUsuarioQueryHandler : IQueryHandler<GetUsuarioQuery, UsuarioResponse>
+internal sealed class GetUsuarioQueryHandler(ISqlConnectionFactory sqlConnectionFactory) : IQueryHandler<GetUsuarioQuery, UsuarioResponse>
 {
-    private readonly ISqlConnectionFactory _sqlConnectionFactory;
-
-    public GetUsuarioQueryHandler(ISqlConnectionFactory sqlConnectionFactory)
-    {
-        _sqlConnectionFactory = sqlConnectionFactory;
-    }
+    private readonly ISqlConnectionFactory _sqlConnectionFactory = sqlConnectionFactory;
 
     public async Task<Result<UsuarioResponse>> Handle(
         GetUsuarioQuery request, 
@@ -45,7 +40,7 @@ internal sealed class GetUsuarioQueryHandler : IQueryHandler<GetUsuarioQuery, Us
         (
             sql,
             new {
-                request.IdUsuario
+                IdUsuario = request.IdUsuario
             }
         );
         return usuario!;

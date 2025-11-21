@@ -4,18 +4,13 @@ using Estudiantes.Application.Matriculas.GetMatricula;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Estudiantes.api.Controllers.Estudiantes;
+namespace Estudiantes.Api.Controllers.Matriculas;
 
 [ApiController]
 [Route("api/matricula")]
-public class MatriculaController  : ControllerBase
+public class MatriculaController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public MatriculaController(ISender sender)
-    {
-        _sender = sender;
-    }
+    private readonly ISender _sender = sender;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> ObtenerMatricula(

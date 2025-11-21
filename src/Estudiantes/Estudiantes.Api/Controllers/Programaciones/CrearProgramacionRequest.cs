@@ -5,4 +5,3 @@ public record CrearProgramacionRequest
     Guid CursoId,
     Guid DocenteId
 );
-

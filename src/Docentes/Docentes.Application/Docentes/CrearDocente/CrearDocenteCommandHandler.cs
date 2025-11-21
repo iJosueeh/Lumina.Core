@@ -2,6 +2,7 @@ using Docentes.Application.Abstractions.Messaging;
 using Docentes.Application.Services;
 using Docentes.Domain.Abstractions;
 using Docentes.Domain.Docentes;
+using Docentes.Domain.Especialidades;
 
 namespace Docentes.Application.Docentes.CrearDocente;
 
@@ -11,47 +12,47 @@ ICommandHandler<CrearDocenteCommand, Guid>
     private readonly IDocenteRepository _docenteRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUsuarioService _usuarioService;
-    private readonly ICursosService _cursosService;
-    private readonly ICacheService _cacheService;
+    private readonly IEspecialidadRepository _especialidadRepository;
 
-    public CrearDocenteCommandHandler(IDocenteRepository docenteRepository, IUnitOfWork unitOfWork, IUsuarioService usuarioService, ICursosService cursosService, ICacheService cacheService)
+    public CrearDocenteCommandHandler(IDocenteRepository docenteRepository, IUnitOfWork unitOfWork, IUsuarioService usuarioService, IEspecialidadRepository especialidadRepository)
     {
         _docenteRepository = docenteRepository;
         _unitOfWork = unitOfWork;
         _usuarioService = usuarioService;
-        _cursosService = cursosService;
-        _cacheService = cacheService;
+        _especialidadRepository = especialidadRepository;
     }
 
-    public async Task<Result<Guid>> Handle(CrearDocenteCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(
+        CrearDocenteCommand request,
+        CancellationToken cancellationToken)
     {
-        if (!await _usuarioService.UsuarioExistAsync(request.UsuarioId,cancellationToken))
+        if (!await _usuarioService.UsuarioExistAsync(request.UsuarioId, cancellationToken))
         {
-            return Result.Failure<Guid>(new Error("UsuarioNotFound","El usuarioId no es valido"));
+            return Result.Failure<Guid>(new Error("UsuarioNotFound", "El usuarioId no es válido."));
         }
 
-        var cacheKey = $"curso_{request.EspecialidadId}";
-        var cursoExist = await _cacheService.GetCacheValueAsync<bool>(cacheKey);
+        var especialidad = await _especialidadRepository.GetByIdAsync(request.EspecialidadId, cancellationToken);
 
-        if (!cursoExist)
+        if (especialidad is null)
         {
-            cursoExist = await _cursosService.CursoExistAsync(request.EspecialidadId,cancellationToken);
-            var expirationTime = TimeSpan.FromMinutes(3);
-            await _cacheService.SetCacheValueAsync(cacheKey,cursoExist,expirationTime);
+            return Result.Failure<Guid>(new Error("EspecialidadNotFound", "El especialidadId no es válido."));
         }
 
-        if (!cursoExist)
-        {
-            return Result.Failure<Guid>(new Error("CursoNotFound","El especialidadId no es valido"));
-        }
-
-        var docente = Docente.Create(
+        var docenteResult = Docente.Create(
             request.UsuarioId,
             request.EspecialidadId
         );
 
-        _docenteRepository.Add(docente.Value);
+        if (docenteResult.IsFailure)
+        {
+            return Result.Failure<Guid>(docenteResult.Error);
+        }
+
+        var docente = docenteResult.Value;
+
+        _docenteRepository.Add(docente);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return docente.Value.Id;
+
+        return Result.Success(docente.Id.Value);
     }
 }

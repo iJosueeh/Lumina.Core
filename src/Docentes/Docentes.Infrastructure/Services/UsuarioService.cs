@@ -13,7 +13,7 @@ public class UsuarioService : IUsuarioService
 
     public async Task<bool> UsuarioExistAsync(Guid usuarioId, CancellationToken cancellationToken)
     {
-        var response = await _httpClient.GetAsync($"usuario/{usuarioId}",cancellationToken);
+        var response = await _httpClient.GetAsync($"Usuario/{usuarioId}",cancellationToken);
         return response.IsSuccessStatusCode;
     }
 }

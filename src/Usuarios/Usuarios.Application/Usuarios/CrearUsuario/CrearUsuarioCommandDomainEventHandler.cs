@@ -5,16 +5,10 @@ using Usuarios.Domain.Usuarios.Events;
 
 namespace Usuarios.Application.Usuarios.CrearUsuario;
 
-public class CrearUsuarioCommandDomainEventHandler : INotificationHandler<UserCreateDomainEvent>
+public class CrearUsuarioCommandDomainEventHandler(IEmailService emailService, IUsuarioRepository usuarioRepository) : INotificationHandler<UserCreateDomainEvent>
 {
-    private readonly IEmailService _emailService;
-    private readonly IUsuarioRepository _usuarioRepository;
-
-    public CrearUsuarioCommandDomainEventHandler(IEmailService emailService, IUsuarioRepository usuarioRepository)
-    {
-        _emailService = emailService;
-        _usuarioRepository = usuarioRepository;
-    }
+    private readonly IEmailService _emailService = emailService;
+    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
 
     public async Task Handle(UserCreateDomainEvent notification, CancellationToken cancellationToken)
     {

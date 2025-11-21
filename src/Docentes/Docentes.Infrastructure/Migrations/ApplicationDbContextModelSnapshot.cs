@@ -83,6 +83,30 @@ namespace Docentes.Infrastructure.Migrations
                     b.ToTable("docentes", (string)null);
                 });
 
+            modelBuilder.Entity("Docentes.Domain.Especialidades.Especialidad", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id")
+                        .HasName("pk_especialidades");
+
+                    b.ToTable("especialidades", (string)null);
+                });
+
             modelBuilder.Entity("Docentes.Domain.CursosImpartidos.CursoImpartido", b =>
                 {
                     b.HasOne("Docentes.Domain.Docentes.Docente", "Docente")
@@ -90,7 +114,7 @@ namespace Docentes.Infrastructure.Migrations
                         .HasForeignKey("DocenteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_cursos_impartidos_docente_docente_id");
+                        .HasConstraintName("fk_cursos_impartidos_docentes_docente_id");
 
                     b.Navigation("Docente");
                 });

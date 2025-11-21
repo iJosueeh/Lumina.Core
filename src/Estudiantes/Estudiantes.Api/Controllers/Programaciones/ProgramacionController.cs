@@ -5,17 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Estudiantes.Api.Controllers.Programaciones;
 
-
 [ApiController]
 [Route("api/programacion")]
-public class ProgramacionController : ControllerBase
+public class ProgramacionController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public ProgramacionController(ISender sender)
-    {
-        _sender = sender;
-    }
+    private readonly ISender _sender = sender;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> ObtenerProgramacion(

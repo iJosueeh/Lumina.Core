@@ -27,15 +27,18 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
-        var connectionStringPostgres = configuration["DB_CONNECTION_ESTUDIANTES"]
+        var connectionStringPostgres = configuration.GetConnectionString("EstudiantesDb")
         ?? throw new ArgumentNullException(nameof(configuration));
 
-        var connectionStringRedis = configuration["DB_CONNECTION_REDIS"]
+        var connectionStringRedis = configuration.GetConnectionString("RedisDb")
         ?? throw new ArgumentNullException(nameof(configuration));
 
-        var usuariosApiBaseUrl = configuration["UsuariosApiBaseUrl"];
-        var cursosApiBaseUrl = configuration["CursosApiBaseUrl"];
-        var docentesApiBaseUrl = configuration["DocentesApiBaseUrl"];
+        var rabbitMQHost = configuration["RabbitMQSettings:Host"]
+        ?? throw new ArgumentNullException(nameof(configuration));
+
+        var usuariosApiBaseUrl = configuration["ApiSettings:UsuariosApiBaseUrl"];
+        var cursosApiBaseUrl = configuration["ApiSettings:CursosApiBaseUrl"];
+        var docentesApiBaseUrl = configuration["ApiSettings:DocentesApiBaseUrl"];
 
         var graylogHost = configuration["Graylog:Host"];
         var graylogPort = configuration.GetValue<int>("Graylog:Port");

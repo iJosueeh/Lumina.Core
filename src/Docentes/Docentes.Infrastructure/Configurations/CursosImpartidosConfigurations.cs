@@ -1,4 +1,6 @@
 using Docentes.Domain.CursosImpartidos;
+using Docentes.Domain.Docentes;
+using Docentes.Infrastructure.Converters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,17 +11,24 @@ internal sealed class CursosImpartidosConfigurations : IEntityTypeConfiguration<
     public void Configure(EntityTypeBuilder<CursoImpartido> builder)
     {
         builder.ToTable("cursos_impartidos");
+
         builder.HasKey(x => x.Id);
 
-        builder.Property(docente => docente.DocenteId);
+        builder.Property(x => x.Id).HasConversion(new StronglyTypedIdConverter<CursoImpartidoId>());
 
-        builder.Property(curso => curso.CursoId);
+        builder.Property(x => x.DocenteId)
+               .HasConversion(new NullableStronglyTypedIdConverter<DocenteId>())
+               .IsRequired();
 
-        builder.HasOne(docente => docente.Docente)
-        .WithMany()
-        .HasForeignKey(docente => docente.DocenteId)
-        .IsRequired();
+        builder.Property(x => x.CursoId)
+            .IsRequired();
 
-        builder.Property<uint>("Version").IsRowVersion();
+        builder.HasOne(x => x.Docente)
+            .WithMany()
+            .HasForeignKey(x => x.DocenteId)
+            .IsRequired();
+
+        builder.Property<uint>("Version")
+            .IsRowVersion();
     }
 }

@@ -1,25 +1,19 @@
 using Estudiantes.Api.Atributos;
-using Estudiantes.Api.Controllers.Estudiantes;
 using Estudiantes.Application.Estudiantes.CrearEstudiante;
 using Estudiantes.Application.Estudiantes.GetEstudiante;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Estudiantes.api.Controllers.CursosImpartidos;
+namespace Estudiantes.Api.Controllers.Estudiantes;
 
 [ApiController]
 [Route("api/estudiantes")]
-public class EstudiantesController : ControllerBase
+public class EstudiantesController(ISender sender) : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public EstudiantesController(ISender sender)
-    {
-        _sender = sender;
-    }
+    private readonly ISender _sender = sender;
 
     [HttpGet("{id}")]
-    [RateLimit(5,60)]
+    [RateLimit(5, 60)]
     public async Task<IActionResult> ObtenerEstudiante(
       Guid id,
       CancellationToken cancellationToken
@@ -49,6 +43,4 @@ public class EstudiantesController : ControllerBase
         }
         return BadRequest(resultado.Error);
     }
-
-
 }

@@ -18,7 +18,7 @@ public class RabbitMQEventBus : IEventBus, IDisposable
         
         var factory = new ConnectionFactory
         {
-            Uri = new Uri(configuration["UrlRabbit"]!)
+            Uri = new Uri(configuration["RabbitMQSettings:Host"]!)
         };
         
         _connection = factory.CreateConnection();

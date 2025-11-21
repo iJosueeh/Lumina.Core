@@ -1,11 +1,16 @@
 namespace Docentes.Domain.Abstractions;
 
-public abstract class Entity
+public abstract class Entity<TId>
 {
-    protected Entity(){}
-    protected Entity(Guid id)
+    protected Entity()
+    {
+        Id = default!;
+    }
+
+    protected Entity(TId id)
     {
         Id = id;
     }
-    public Guid Id { get; init; }
+
+    public TId Id { get; init; }
 }

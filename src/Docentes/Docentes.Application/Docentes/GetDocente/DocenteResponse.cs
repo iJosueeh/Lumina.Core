@@ -1,8 +1,11 @@
+using Docentes.Domain.Docentes;
+using Docentes.Domain.Especialidades;
+
 namespace Docentes.Application.Docentes.GetDocente;
 
 public sealed record DocenteResponse
 (
-    Guid Id,
+    DocenteId Id,
     Guid UsuarioId,
-    Guid EspecialidadID
+    EspecialidadId EspecialidadId
 );

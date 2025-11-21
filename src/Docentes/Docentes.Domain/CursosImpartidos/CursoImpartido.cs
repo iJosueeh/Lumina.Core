@@ -3,20 +3,19 @@ using Docentes.Domain.Docentes;
 
 namespace Docentes.Domain.CursosImpartidos;
 
-public sealed class CursoImpartido : Entity
+public sealed class CursoImpartido : Entity<CursoImpartidoId>, IAggregateRoot
 {
     private CursoImpartido() { }
     public CursoImpartido(
-        Guid id,
-        Guid? docenteId,
+        CursoImpartidoId id,
+        DocenteId? docenteId,
         Guid? cursoId) : base(id)
     {
         Id = id;
         DocenteId = docenteId;
         CursoId = cursoId;
     } 
-    public Guid? DocenteId { get; set; }
+    public DocenteId? DocenteId { get; set; }
     public Guid? CursoId { get; set; }
     public Docente? Docente { get; set; }
-    
 }

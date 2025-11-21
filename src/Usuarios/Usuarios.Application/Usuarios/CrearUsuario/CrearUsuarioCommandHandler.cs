@@ -6,38 +6,37 @@ using Usuarios.Domain.Usuarios;
 
 namespace Usuarios.Application.Usuarios.CrearUsuario;
 
-internal sealed class CrearUsuarioCommandHandler :
+internal sealed class CrearUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUnitOfWork unitOfWork, NombreUsuarioService nombreUsuarioService, IDateTimeProvider dateTimeProvider, IRolRepository rolRepository) :
 ICommandHandler<CrearUsuarioCommand, Guid>
 {
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly NombreUsuarioService _nombreUsuarioService;
-    private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IRolRepository _rolRepository;
-
-    public CrearUsuarioCommandHandler(IUsuarioRepository usuarioRepository, IUnitOfWork unitOfWork, NombreUsuarioService nombreUsuarioService, IDateTimeProvider dateTimeProvider, IRolRepository rolRepository)
-    {
-        _usuarioRepository = usuarioRepository;
-        _unitOfWork = unitOfWork;
-        _nombreUsuarioService = nombreUsuarioService;
-        _dateTimeProvider = dateTimeProvider;
-        _rolRepository = rolRepository;
-    }
+    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly NombreUsuarioService _nombreUsuarioService = nombreUsuarioService;
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
+    private readonly IRolRepository _rolRepository = rolRepository;
 
     public async Task<Result<Guid>> Handle(CrearUsuarioCommand request, CancellationToken cancellationToken)
     {
-        var rolObtenido = await _rolRepository.GetByNameAsync(request.RolNombre,cancellationToken);
+        string roleNameToSearch = request.RolNombre;
+
+        var rolObtenido = await _rolRepository.GetByNameAsync(roleNameToSearch, cancellationToken);
 
         if (rolObtenido == null)
         {
             return Result.Failure<Guid>(RolErrores.NoEncontrado);
         }
 
+        var passwordResult = Password.Create(request.Password);
+        if (passwordResult.IsFailure)
+        {
+            return Result.Failure<Guid>(passwordResult.Error);
+        }
+
         var usuario = Usuario.Create(
             new NombresPersona(request.Nombres),
             new ApellidoPaterno(request.ApellidoPaterno),
             new ApellidoMaterno(request.ApellidoMaterno),
-            Password.Create(request.Password),
+            passwordResult.Value,
             request.FechaNacimiento.ToUniversalTime(),
             CorreoElectronico.Create(request.Correo).Value,
             new Direccion(
@@ -54,8 +53,7 @@ ICommandHandler<CrearUsuarioCommand, Guid>
 
         _usuarioRepository.Add(usuario);
 
-       await _unitOfWork.SaveChangesAsync(cancellationToken);
-       return usuario.Id;
-
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return usuario.Id;
     }
 }

@@ -1,15 +1,19 @@
 using Docentes.Domain.Abstractions;
+using Docentes.Domain.Especialidades;
 
 namespace Docentes.Domain.Docentes;
 
-public sealed class Docente : Entity
+public sealed class Docente : Entity<DocenteId>, IAggregateRoot
 {
-    private Docente() { }
+    private Docente()
+    {
+        EspecialidadId = null!;
+    }
 
     private Docente(
-    Guid id,
-    Guid usuarioId,
-    Guid especialidadId
+        DocenteId id,
+        Guid usuarioId,
+        EspecialidadId especialidadId
     ) : base(id)
     {
         UsuarioId = usuarioId;
@@ -17,18 +21,19 @@ public sealed class Docente : Entity
     }
 
     public Guid UsuarioId { get; private set; }
-    public Guid EspecialidadId { get; private set; }
+    public EspecialidadId EspecialidadId { get; private set; }
 
-     public static Result<Docente> Create(
+    public static Result<Docente> Create(
         Guid usuarioId,
-        Guid especialidadId
+        EspecialidadId especialidadId
     )
     {
         var docente = new Docente(
-            Guid.NewGuid(),
-          usuarioId,
-          especialidadId
+            new DocenteId(Guid.NewGuid()),
+            usuarioId,
+            especialidadId
         );
+
         return docente;
     }
 }

@@ -1,16 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.Configuration.EnvironmentVariables; // Add this using statement
-using System.IO;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Usuarios.Infrastructure
 {
-    // Simple NullPublisher for design-time operations
     public class NullPublisher : IPublisher
     {
         public Task Publish(object notification, CancellationToken cancellationToken = default)
@@ -28,25 +22,36 @@ namespace Usuarios.Infrastructure
     {
         public ApplicationDbContext CreateDbContext(string[] args)
         {
-            // Build configuration
+            DotNetEnv.Env.TraversePath().Load();
+
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "Usuarios", "Usuarios.Api");
+            if (!Directory.Exists(basePath))
+            {
+                basePath = Path.Combine(Directory.GetCurrentDirectory(), "src", "Usuarios", "Usuarios.Api");
+            }
+            if (!Directory.Exists(basePath))
+            {
+                basePath = Directory.GetCurrentDirectory(); 
+            }
+
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
 
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            var connectionString = configuration.GetConnectionString("Database");
+            var connectionString = configuration.GetConnectionString("UsuariosDb");
 
             if (string.IsNullOrEmpty(connectionString))
             {
-                // Fallback for design-time
-                connectionString = "Host=localhost;Port=5432;Database=design_time_db;Username=postgres;Password=password";
+                throw new InvalidOperationException("Connection string 'UsuariosDb' not found for design-time operations.");
             }
 
             builder.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
 
-            // Provide a NullPublisher for design-time
             var publisher = new NullPublisher();
 
             return new ApplicationDbContext(builder.Options, publisher);

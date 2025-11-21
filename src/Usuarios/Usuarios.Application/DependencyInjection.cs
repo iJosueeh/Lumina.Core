@@ -2,6 +2,8 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Usuarios.Application.Abstractions.Behaviors;
 using Usuarios.Domain.Usuarios;
+using Usuarios.Application.Abstractions.Services;
+using Usuarios.Application.Services;
 
 namespace Usuarios.Application;
 
@@ -19,6 +21,8 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddTransient<NombreUsuarioService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
         return services;
     }
 }

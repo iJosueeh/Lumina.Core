@@ -2,22 +2,13 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Estudiantes.Api.Middleware;
 
-public class RateLimitingMiddleware
+public class RateLimitingMiddleware(RequestDelegate next, ILogger<RateLimitingMiddleware> logger, IMemoryCache cache, int requestLimit, TimeSpan timeSpan)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<RateLimitingMiddleware> _logger;
-    private readonly IMemoryCache _cache;
-    private readonly int _requestLimit;
-    private readonly TimeSpan _timeSpan;
-
-    public RateLimitingMiddleware(RequestDelegate next, ILogger<RateLimitingMiddleware> logger, IMemoryCache cache, int requestLimit, TimeSpan timeSpan)
-    {
-        _next = next;
-        _logger = logger;
-        _cache = cache;
-        _requestLimit = requestLimit;
-        _timeSpan = timeSpan;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<RateLimitingMiddleware> _logger = logger;
+    private readonly IMemoryCache _cache = cache;
+    private readonly int _requestLimit = requestLimit;
+    private readonly TimeSpan _timeSpan = timeSpan;
 
     public async Task InvokeAsync(HttpContext context)
     {

@@ -20,11 +20,11 @@ internal sealed class GetDocenteQueryHandler : IQueryHandler<GetDocenteQuery, Do
         {
             return Result.Failure<DocenteResponse>(DocenteErrors.NotFound);
         }
-        
+
         return Result.Success(new DocenteResponse(
-             docenteResult.Id,
-             docenteResult.UsuarioId,
-             docenteResult.EspecialidadId
-         ));
+            docenteResult.Id,
+            docenteResult.UsuarioId,
+            docenteResult.EspecialidadId
+        ));
     }
 }

@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Docentes.Infrastructure
 {
