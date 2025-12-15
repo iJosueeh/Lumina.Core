@@ -31,7 +31,10 @@ public class RabbitMQEventListener : BackgroundService
 
         var factory = new ConnectionFactory()
         {
-            Uri = new Uri(configuration["RabbitMQSettings:Host"]!)
+            HostName = configuration["RabbitMQSettings:Host"],
+            Port = Convert.ToInt32(configuration["RabbitMQSettings:Port"]),
+            UserName = configuration["RabbitMQSettings:Username"],
+            Password = configuration["RabbitMQSettings:Password"]
         };
 
         _connection = factory.CreateConnection();

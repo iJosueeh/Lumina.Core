@@ -31,7 +31,12 @@ public class DocenteController(ISender sender) : ControllerBase
     {
         var command = new CrearDocenteCommand(
             request.UsuarioId,
-            new EspecialidadId(request.EspecialidadId)
+            new EspecialidadId(request.EspecialidadId),
+            request.Nombre,
+            request.Cargo,
+            request.Bio,
+            request.Avatar,
+            request.LinkedIn
         );
 
         var resultado = await _sender.Send(command, cancellationToken);

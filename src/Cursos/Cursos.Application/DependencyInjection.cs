@@ -1,4 +1,5 @@
 using Cursos.Application.Abstractions.Behaviors;
+using Cursos.Application.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,5 +18,4 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         return services;
     }
-    
 }

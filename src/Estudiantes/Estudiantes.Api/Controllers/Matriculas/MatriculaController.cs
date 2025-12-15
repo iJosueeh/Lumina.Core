@@ -20,7 +20,7 @@ public class MatriculaController(ISender sender) : ControllerBase
     {
         var query = new GetMatriculaQuery(id);
         var resultado = await _sender.Send(query,cancellationToken);
-        return resultado.IsSuccess ? Ok(resultado) : NotFound();
+        return resultado.IsSuccess ? Ok(resultado.Value) : NotFound();
     }
 
     [HttpPost]

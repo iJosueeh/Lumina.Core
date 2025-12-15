@@ -15,6 +15,7 @@ using Estudiantes.Infrastructure.services;
 using Serilog;
 using Serilog.Sinks.Graylog;
 using Serilog.Sinks.Graylog.Core.Transport;
+using Npgsql;
 
 namespace Estudiantes.Infrastructure;
 
@@ -43,10 +44,14 @@ public static class DependencyInjection
         var graylogHost = configuration["Graylog:Host"];
         var graylogPort = configuration.GetValue<int>("Graylog:Port");
 
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionStringPostgres);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
+
         services.AddDbContext<ApplicationDbContext>(
             options =>
             {
-                options.UseNpgsql(connectionStringPostgres).UseSnakeCaseNamingConvention(); // usuario, producto_detalle
+                options.UseNpgsql(dataSource).UseSnakeCaseNamingConvention(); 
             }
         );
 
@@ -59,6 +64,8 @@ public static class DependencyInjection
         services.AddScoped<IEstudianteRepository, EstudianteRepository>();
         services.AddScoped<IMatriculaRepository, MatriculaRepository>();
         services.AddScoped<IProgramacionRepository, ProgramacionRepository>();
+        services.AddScoped<IInscripcionRepository, InscripcionRepository>();
+        services.AddScoped<ICarritoRepository, CarritoRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

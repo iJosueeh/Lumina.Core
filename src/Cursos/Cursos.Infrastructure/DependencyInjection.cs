@@ -21,27 +21,29 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
-        var setting = configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>() ??
-            throw new ArgumentNullException(nameof(configuration));
+        var connectionString = configuration["MongoDbSettings:ConnectionString"] ??
+            throw new ArgumentNullException("MongoDbSettings:ConnectionString not found in configuration.");
+        var databaseName = configuration["MongoDbSettings:DatabaseName"] ??
+            throw new ArgumentNullException("MongoDbSettings:DatabaseName not found in configuration.");
 
         var graylogHost = configuration["Graylog:Host"];
         var graylogPort = configuration.GetValue<int>("Graylog:Port");
 
         services.AddSingleton<IMongoClient, MongoClient>(sp =>
         {
-            return new MongoClient(setting.ConnectionString);
+            return new MongoClient(connectionString);
         });
 
         services.AddScoped(sp =>
         {
             var client = sp.GetRequiredService<IMongoClient>();
-            return client.GetDatabase(setting.DatabaseName);
+            return client.GetDatabase(databaseName);
         });
 
-        services.AddScoped<IMongoCollection<Curso>>(sp =>
+        services.AddScoped(sp =>
         {
             var database = sp.GetRequiredService<IMongoDatabase>();
-            return database.GetCollection<Curso>("Cursos");
+            return database.GetCollection<Curso>("cursos");
         });
 
 

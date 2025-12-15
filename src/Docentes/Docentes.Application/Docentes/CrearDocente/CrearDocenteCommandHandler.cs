@@ -40,7 +40,12 @@ ICommandHandler<CrearDocenteCommand, Guid>
 
         var docenteResult = Docente.Create(
             request.UsuarioId,
-            request.EspecialidadId
+            request.EspecialidadId,
+            request.Nombre,
+            request.Cargo,
+            request.Bio,
+            request.Avatar,
+            request.LinkedIn
         );
 
         if (docenteResult.IsFailure)

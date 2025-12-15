@@ -29,9 +29,18 @@ public class RabbitMQEventListener : BackgroundService
         _logger = logger;
         _serviceProvider = serviceProvider;
 
+        var rabbitHost = configuration["RabbitMQSettings:Host"] ?? "localhost";
+        var rabbitPort = configuration.GetValue<int?>("RabbitMQSettings:Port") ?? 5672;
+        var rabbitUsername = configuration["RabbitMQSettings:Username"] ?? "guest";
+        var rabbitPassword = configuration["RabbitMQSettings:Password"] ?? "guest";
+
         var factory = new ConnectionFactory()
         {
-            Uri = new Uri(configuration["UrlRabbit"]!)
+            HostName = rabbitHost,
+            Port = rabbitPort,
+            UserName = rabbitUsername,
+            Password = rabbitPassword
+            // Optional: VirtualHost = "/" // Default is "/"
         };
 
         _connection = factory.CreateConnection();

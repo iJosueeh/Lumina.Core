@@ -16,7 +16,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ocurrio una excepcion: {Message}", ex.Message);
+            _logger.LogError(ex, "Ocurrio una excepcion: {Exception}", ex);
             var excepcionDetail = GetExceptionDeails(ex);
             var problemDetail = new ProblemDetails
             {

@@ -11,6 +11,19 @@ Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200") // Angular app's origin
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials(); // Allow credentials (like cookies, authorization headers)
+        });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -77,6 +90,9 @@ app.ApplyMigrations();
 app.SeedData();
 
 app.UseCustomExceptionHandler();
+
+// Use CORS middleware
+app.UseCors("AllowSpecificOrigin"); // Apply the CORS policy
 
 app.UseAuthentication();
 app.UseAuthorization();

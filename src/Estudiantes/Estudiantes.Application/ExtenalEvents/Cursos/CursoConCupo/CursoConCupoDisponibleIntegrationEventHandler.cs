@@ -27,11 +27,7 @@ internal sealed class CursoConCupoDisponibleIntegrationEventHandler : INotificat
 
         try
         { 
-            if(matricula.ProgramacionId.ToString() == "5c950537-5019-4d3b-81d8-3583e2bac1fd") // ID de prueba, reemplazar
-            {
-                throw new Exception();
-            }
-            matricula.ActualizarEstado(MatriculaEstados.CONFIRMADA);
+                        matricula.ActualizarEstado(MatriculaEstados.CONFIRMADA);
             _matriculaRepository.Update(matricula);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }

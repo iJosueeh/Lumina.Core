@@ -7,6 +7,18 @@ DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200") 
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -24,6 +36,9 @@ if (app.Environment.IsDevelopment())
 
 app.ApplyMigrations();
 app.UseCustomExceptionHandler();
+app.UseCors("AllowSpecificOrigin");
 app.MapControllers();
+
+DataSeeder.Seed(app);
 
 app.Run();

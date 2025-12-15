@@ -1,5 +1,9 @@
+using Cursos.Application.Cursos;
 using Cursos.Application.Cursos.CrearCurso;
-using Cursos.Application.Cursos.ObtenerCurso;
+using Cursos.Application.Cursos.GetAllCourses;
+using Cursos.Application.Cursos.GetCategorias;
+using Cursos.Application.Cursos.GetCourseById;
+using Cursos.Application.Cursos.GetNiveles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,27 +31,58 @@ public class CursosController : ControllerBase
         (
             request.Nombre!,
             request.Descripcion!,
-            request.Capacidad
+            request.Capacidad,
+            request.Nivel,
+            request.Duracion,
+            request.Precio,
+            request.ImagenUrl,
+            request.Categoria,
+            request.InstructorId,
+            request.Modulos?.Select(m => new ModuleDto(Guid.NewGuid(), m.Titulo, m.Descripcion, m.Lecciones)).ToList(),
+            request.Requisitos
         );
 
-        var result = await _sender.Send(command,cancellationToken);
+        var result = await _sender.Send(command, cancellationToken);
         if (result.IsSuccess)
         {
-            return CreatedAtAction(nameof(ObtenerCurso),new { id = result.Value } , result.Value  );
+            return CreatedAtAction(nameof(GetCourseById), new { id = result.Value }, result.Value);
         }
+
         return BadRequest(result.Error);
     }
 
-     [HttpGet("{id}")]
-    public async Task<IActionResult> ObtenerCurso(
+    [HttpGet]
+    public async Task<IActionResult> GetAllCourses(CancellationToken cancellationToken)
+    {
+        var query = new GetAllCoursesQuery();
+        var result = await _sender.Send(query, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCourseById(
         Guid id,
         CancellationToken cancellationToken
     )
     {
-        var query = new GetCursoQuery(id);
-        var resultado = await _sender.Send(query,cancellationToken);
-        return resultado.IsSuccess ?  Ok(resultado) : NotFound();
+        var query = new GetCourseByIdQuery(id);
+        var result = await _sender.Send(query, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
     }
 
+    [HttpGet("categorias")]
+    public async Task<IActionResult> GetCategorias(CancellationToken cancellationToken)
+    {
+        var query = new GetCategoriasQuery();
+        var categorias = await _sender.Send(query, cancellationToken);
+        return Ok(categorias);
+    }
 
+    [HttpGet("niveles")]
+    public async Task<IActionResult> GetNiveles(CancellationToken cancellationToken)
+    {
+        var query = new GetNivelesQuery();
+        var niveles = await _sender.Send(query, cancellationToken);
+        return Ok(niveles);
+    }
 }

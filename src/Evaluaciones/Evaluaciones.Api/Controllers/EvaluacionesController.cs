@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Evaluaciones.Application.Evaluaciones.CrearEvaluacion;
 using Evaluaciones.Application.Evaluaciones.ObtenerEvaluacion;
+using Evaluaciones.Application.Evaluaciones.GetEvaluacionesByEstudiante;
 
 namespace Evaluaciones.Api.Controllers;
 
@@ -29,5 +30,22 @@ public class EvaluacionesController(ISender sender) : ControllerBase
             return NotFound();
         }
         return Ok(evaluacion);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetEvaluaciones(
+        [FromQuery] Guid? estudianteId,
+        [FromQuery] Guid? cursoId
+    )
+    {
+        if (estudianteId.HasValue)
+        {
+            var query = new GetEvaluacionesByEstudianteQuery(estudianteId.Value);
+            var evaluaciones = await _sender.Send(query);
+            return Ok(evaluaciones);
+        }
+
+        // TODO: Implementar filtro por cursoId si es necesario
+        return BadRequest("Se requiere estudianteId");
     }
 }

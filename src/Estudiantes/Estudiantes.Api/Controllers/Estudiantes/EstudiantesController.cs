@@ -1,6 +1,8 @@
 using Estudiantes.Api.Atributos;
 using Estudiantes.Application.Estudiantes.CrearEstudiante;
 using Estudiantes.Application.Estudiantes.GetEstudiante;
+using Estudiantes.Application.Estudiantes.GetDashboardStats;
+using Estudiantes.Application.Estudiantes.GetCursosMatriculados;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +23,7 @@ public class EstudiantesController(ISender sender) : ControllerBase
     {
         var query = new GetEstudianteQuery(id);
         var resultado = await _sender.Send(query, cancellationToken);
-        return resultado.IsSuccess ? Ok(resultado) : NotFound();
+        return resultado.IsSuccess ? Ok(resultado.Value) : NotFound();
     }
 
     [HttpPost]
@@ -42,5 +44,27 @@ public class EstudiantesController(ISender sender) : ControllerBase
             return CreatedAtAction(nameof(ObtenerEstudiante), new { id = resultado.Value }, resultado.Value);
         }
         return BadRequest(resultado.Error);
+    }
+
+    [HttpGet("{id}/dashboard-stats")]
+    public async Task<IActionResult> ObtenerDashboardStats(
+        Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetDashboardStatsQuery(id);
+        var resultado = await _sender.Send(query, cancellationToken);
+        return resultado.IsSuccess ? Ok(resultado.Value) : NotFound();
+    }
+
+    [HttpGet("{id}/cursos-matriculados")]
+    public async Task<IActionResult> ObtenerCursosMatriculados(
+        Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetCursosMatriculadosQuery(id);
+        var resultado = await _sender.Send(query, cancellationToken);
+        return resultado.IsSuccess ? Ok(resultado.Value) : NotFound();
     }
 }

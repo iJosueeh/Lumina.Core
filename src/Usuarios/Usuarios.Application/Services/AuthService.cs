@@ -5,7 +5,6 @@ using Usuarios.Application.Authentication;
 using Usuarios.Domain.Abstractions;
 using Usuarios.Domain.Roles;
 using Usuarios.Domain.Usuarios;
-using Usuarios.Application.Usuarios;
 
 namespace Usuarios.Application.Services;
 
@@ -69,23 +68,15 @@ public class AuthService : IAuthService
             rol.NombreRol.Value
         );
 
-        var userDto = new UserDto(
+        var authUserDto = new AuthUserDto(
             usuario.Id,
-            usuario.NombreUsuario!.Value,
-            usuario.NombresPersona!.Value,
-            usuario.ApellidoPaterno!.Value,
-            usuario.ApellidoMaterno!.Value,
-            usuario.FechaNacimiento,
             usuario.CorreoElectronico!.Value,
-            usuario.Direccion!.Pais!,
-            usuario.Direccion.Departamento!,
-            usuario.Direccion.Provincia!,
-            usuario.Direccion.Distrito!,
-            usuario.Direccion.Calle!,
-            usuario.Estado.ToString()
+            usuario.NombresPersona!.Value,
+            $"{usuario.ApellidoPaterno!.Value} {usuario.ApellidoMaterno!.Value}",
+            rol.NombreRol!.Value
         );
 
-        return new AuthResponseDto(token, userDto);
+        return new AuthResponseDto(token, authUserDto);
     }
 
     public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto request)
@@ -150,22 +141,14 @@ public class AuthService : IAuthService
             rol.NombreRol.Value
         );
 
-        var userDto = new UserDto(
+        var authUserDto = new AuthUserDto(
             usuario.Id,
-            usuario.NombreUsuario!.Value,
-            usuario.NombresPersona!.Value,
-            usuario.ApellidoPaterno!.Value,
-            usuario.ApellidoMaterno!.Value,
-            usuario.FechaNacimiento,
             usuario.CorreoElectronico!.Value,
-            usuario.Direccion!.Pais!,
-            usuario.Direccion.Departamento!,
-            usuario.Direccion.Provincia!,
-            usuario.Direccion.Distrito!,
-            usuario.Direccion.Calle!,
-            usuario.Estado.ToString()
+            usuario.NombresPersona!.Value,
+            $"{usuario.ApellidoPaterno!.Value} {usuario.ApellidoMaterno!.Value}",
+            rol.NombreRol!.Value
         );
 
-        return new AuthResponseDto(token, userDto);
+        return new AuthResponseDto(token, authUserDto);
     }
 }
