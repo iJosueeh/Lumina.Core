@@ -1,59 +1,74 @@
+using Estudiantes.Application.Services;
 using Estudiantes.Domain.Abstractions;
+using Estudiantes.Domain.Matriculas;
 using MediatR;
 
 namespace Estudiantes.Application.Estudiantes.GetCursosMatriculados;
 
 internal sealed class GetCursosMatriculadosQueryHandler : IRequestHandler<GetCursosMatriculadosQuery, Result<List<CursoMatriculadoResponse>>>
 {
+    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly ICursosService _cursosService;
+
+    public GetCursosMatriculadosQueryHandler(IMatriculaRepository matriculaRepository, ICursosService cursosService)
+    {
+        _matriculaRepository = matriculaRepository;
+        _cursosService = cursosService;
+    }
+
     public async Task<Result<List<CursoMatriculadoResponse>>> Handle(GetCursosMatriculadosQuery request, CancellationToken cancellationToken)
     {
-        // MOCK DATA TEMPORAL
-        var cursos = new List<CursoMatriculadoResponse>
-        {
-            new(
-                Id: "1",
-                Titulo: "Introducción a .NET 8",
-                ImagenUrl: "assets/images/courses/dotnet.jpg",
-                Progreso: 75,
-                UltimaActividad: DateTime.UtcNow,
-                Instructor: "Juan Pérez",
-                TotalLecciones: 20,
-                LeccionesCompletadas: 15,
-                Descripcion: "Curso introductorio a .NET 8",
-                Categoria: "Desarrollo Backend",
-                Nivel: "Principiante",
-                Imagen: "assets/images/courses/dotnet.jpg"
-            ),
-            new(
-                Id: "2",
-                Titulo: "Angular Avanzado",
-                ImagenUrl: "assets/images/courses/angular.jpg",
-                Progreso: 30,
-                UltimaActividad: DateTime.UtcNow,
-                Instructor: "Ana García",
-                TotalLecciones: 25,
-                LeccionesCompletadas: 8,
-                Descripcion: "Curso avanzado de Angular",
-                Categoria: "Desarrollo Frontend",
-                Nivel: "Avanzado",
-                Imagen: "assets/images/courses/angular.jpg"
-            ),
-            new(
-                Id: "3",
-                Titulo: "SQL Server para Desarrolladores",
-                ImagenUrl: "assets/images/courses/sql.jpg",
-                Progreso: 0,
-                UltimaActividad: DateTime.UtcNow,
-                Instructor: "Carlos López",
-                TotalLecciones: 15,
-                LeccionesCompletadas: 0,
-                Descripcion: "Optimización y diseño de bases de datos",
-                Categoria: "Base de Datos",
-                Nivel: "Intermedio",
-                Imagen: "assets/images/courses/sql.jpg"
-            )
-        };
+        var matriculas = await _matriculaRepository.GetByEstudianteIdAsync(request.EstudianteId, cancellationToken);
+        
+        var response = new List<CursoMatriculadoResponse>();
 
-        return Result.Success(cursos);
+        foreach (var matricula in matriculas)
+        {
+            if (matricula.Programacion == null) continue;
+
+            var cursoInfo = await _cursosService.GetCursoInfoAsync(matricula.Programacion.CursoId, cancellationToken);
+            
+            if (cursoInfo == null)
+            {
+                // Fallback si falla el servicio de cursos
+                response.Add(new CursoMatriculadoResponse(
+                    matricula.Programacion.CursoId.ToString(),
+                    "Curso No Disponible",
+                    "assets/images/courses/default.jpg",
+                    0, // Progreso placeholder
+                    matricula.FechaMatricula,
+                    "Desconocido",
+                    10,
+                    0,
+                    "Información no disponible temporalmente",
+                    "General",
+                    "Básico",
+                    "assets/images/courses/default.jpg"
+                ));
+                continue;
+            }
+
+            // Simulacion de progreso basado en estado
+            int progreso = matricula.EstadoMatricula == MatriculaEstados.COMPLETED ? 100 : 
+                          matricula.EstadoMatricula == MatriculaEstados.CANCELLED ? 0 :
+                          new Random(matricula.Id.GetHashCode()).Next(5, 90); // Random determinista para demo
+
+            response.Add(new CursoMatriculadoResponse(
+                cursoInfo.Id.ToString(),
+                cursoInfo.Titulo,
+                cursoInfo.ImagenUrl,
+                progreso,
+                matricula.FechaMatricula, // Usamos fecha matricula como ultima actividad por ahora
+                "Instructor Docente", // TODO: Obtener de servicio Docentes
+                20, // Total Lecciones Mock
+                (int)(20 * (progreso / 100.0)),
+                cursoInfo.Descripcion,
+                cursoInfo.Categoria,
+                cursoInfo.Nivel,
+                cursoInfo.ImagenUrl
+            ));
+        }
+
+        return Result.Success(response);
     }
 }

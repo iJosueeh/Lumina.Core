@@ -19,7 +19,7 @@ public class ProgramacionController(ISender sender) : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        // Si viene ID específico, mantenemos comportamiento anterior (aunque idealmente sería ruta separada)
+        // Si viene ID específico, mantenemos comportamiento anterior
         if (id.HasValue)
         {
             var query = new GetProgramacionQuery(id.Value);
@@ -27,29 +27,12 @@ public class ProgramacionController(ISender sender) : ControllerBase
             return resultado.IsSuccess ? Ok(resultado.Value) : NotFound();
         }
 
-        // Si es filtro para dashboard (estudianteId + hasta)
+        // Si es filtro para dashboard (estudianteId)
         if (estudianteId.HasValue)
         {
-            // TODO: Implementar Query específica GetProgramacionPorEstudianteQuery
-            // Por ahora retornamos Mock para no bloquear el frontend
-            var mockProgramacion = new List<object>
-            {
-                new {
-                    Id = Guid.NewGuid(),
-                    Titulo = "Clase de .NET Core (Backend)",
-                    Descripcion = "Introducción a Web API",
-                    FechaInicio = DateTime.UtcNow.AddDays(1),
-                    FechaFin = DateTime.UtcNow.AddDays(1).AddHours(2),
-                    CursoId = Guid.NewGuid(),
-                    CursoNombre = "Desarrollo Web con .NET",
-                    Tipo = "CLASE_VIRTUAL",
-                    EnlaceReunion = "https://meet.google.com/abc-defg-hij",
-                    DocenteId = "d1",
-                    DocenteNombre = "Juan Pérez",
-                    Modalidad = "Virtual"
-                }
-            };
-            return Ok(mockProgramacion);
+            var query = new GetProgramacionPorEstudianteQuery(estudianteId.Value);
+            var resultado = await _sender.Send(query, cancellationToken);
+            return resultado.IsSuccess ? Ok(resultado.Value) : BadRequest(resultado.Error);
         }
 
         return BadRequest("Faltan parámetros de filtro");

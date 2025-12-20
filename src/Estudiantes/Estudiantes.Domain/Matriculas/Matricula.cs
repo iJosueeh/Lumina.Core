@@ -38,7 +38,7 @@ public sealed class Matricula : Entity
             estudianteId,
             programacionId,
             fechaMatricula,
-            MatriculaEstados.PENDIENTE
+            MatriculaEstados.PENDING
         );
 
         matricula.RaiseDomainEvent(new MatriculaCreateDomainEvent(matricula.Id));

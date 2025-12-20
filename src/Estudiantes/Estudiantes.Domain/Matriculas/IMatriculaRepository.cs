@@ -4,6 +4,7 @@ public interface IMatriculaRepository
 {
     Task<Matricula?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Matricula?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<List<Matricula>> GetByEstudianteIdAsync(Guid estudianteId, CancellationToken cancellationToken = default);
     void Add(Matricula Matricula);
     void Update(Matricula Matricula);
 }

@@ -20,7 +20,7 @@ public class CursoSinCupoDisponibleIntegrationEventHandler: INotificationHandler
 
         if (matricula is null) return;
 
-        matricula.ActualizarEstado(MatriculaEstados.RECHAZADA);
+        matricula.ActualizarEstado(MatriculaEstados.REJECTED);
         _matriculaRepository.Update(matricula);
         await _unitOfWork.SaveChangesAsync();
     }

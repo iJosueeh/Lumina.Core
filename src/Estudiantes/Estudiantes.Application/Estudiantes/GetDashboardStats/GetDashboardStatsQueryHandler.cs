@@ -16,21 +16,24 @@ internal sealed class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboa
     public async Task<Result<DashboardStatsResponse>> Handle(GetDashboardStatsQuery request, CancellationToken cancellationToken)
     {
         // 1. Obtener matrículas del estudiante
-        // Nota: Asumimos que existe un método para obtener por estudiante, si no, habrá que agregarlo al repositorio.
-        // Por ahora usaremos una lógica simulada si el repositorio no tiene el método específico, 
-        // pero idealmente deberíamos extender IMatriculaRepository.
+        var matriculas = await _matriculaRepository.GetByEstudianteIdAsync(request.EstudianteId, cancellationToken);
         
-        // TODO: Implementar IMatriculaRepository.GetByEstudianteIdAsync
-        // var matriculas = await _matriculaRepository.GetByEstudianteIdAsync(request.EstudianteId, cancellationToken);
+        // 2. Calcular estadisticas reales
+        var cursosActivos = matriculas.Count(m => m.EstadoMatricula == MatriculaEstados.CONFIRMED || m.EstadoMatricula == MatriculaEstados.PENDING);
+        var cursosCompletados = matriculas.Count(m => m.EstadoMatricula == MatriculaEstados.COMPLETED);
         
-        // MOCK DATA TEMPORAL para validar el flujo completo antes de tocar repositorios
+        // Mocks pendientes de otros microservicios
+        var evaluacionesPendientes = 2; // TODO: Consultar Evaluaciones Microservice
+        var promedioGeneral = 15.5; // TODO: Calcular real
+        var horasEstudio = cursosCompletados * 20 + cursosActivos * 5; // Estimacion
+        
         var stats = new DashboardStatsResponse(
-            CursosActivos: 3,
-            EvaluacionesPendientes: 2,
-            PromedioGeneral: 8.5,
-            HorasEstudio: 120,
-            CursosCompletados: 1,
-            HorasEstudioSemana: 10
+            CursosActivos: cursosActivos,
+            EvaluacionesPendientes: evaluacionesPendientes,
+            PromedioGeneral: promedioGeneral,
+            HorasEstudio: horasEstudio,
+            CursosCompletados: cursosCompletados,
+            HorasEstudioSemana: 10 // Hardcoded por ahora
         );
 
         return Result.Success(stats);

@@ -1,117 +1,95 @@
-# 🎓 Plataforma Académica 🚀
+# 🎓 Lumina Core - Backend Microservices 🚀
 
-![Status](https://img.shields.io/badge/Status-Under%20Development-yellow)
-![License](https://img.shields.io/badge/License-MIT-blue)
+![Status](https://img.shields.io/badge/Status-Active%20Development-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![.NET](https://img.shields.io/badge/.NET-8.0-purple)
 
 ## ✨ Descripción del Proyecto
 
-Este proyecto es una **Plataforma Académica** robusta, diseñada con una arquitectura de **microservicios** para ofrecer escalabilidad y flexibilidad. Su objetivo es gestionar de manera eficiente los procesos educativos, incluyendo la administración de cursos, docentes, estudiantes y usuarios.
+**Lumina Core** es el sistema backend robusto y escalable que potencia el ecosistema educativo de la institución. Diseñado bajo una arquitectura de **microservicios** con **Clean Architecture**, gestiona de forma descentralizada los dominios de Estudiantes, Docentes, Cursos y Usuarios.
 
-## 🛠️ Tecnologías Clave
+Este repositorio contiene todos los servicios backend necesarios para operar el **Lumina Core Portal** (Frontend).
 
-La plataforma está construida sobre un stack tecnológico moderno y potente:
+## 🏗️ Arquitectura y Estado Actual
 
-*   **.NET (C#):** Framework principal para el desarrollo de los servicios.
-*   **ASP.NET Core:** Para la creación de APIs web de alto rendimiento.
-*   **Entity Framework Core:** ORM para la interacción con bases de datos relacionales.
-*   **PostgreSQL:** Base de datos relacional utilizada por los servicios de Docentes, Estudiantes y Usuarios.
-*   **MongoDB:** Base de datos NoSQL para el servicio de Cursos.
-*   **RabbitMQ:** Broker de mensajes para la comunicación asíncrona entre microservicios.
-*   **Swagger/OpenAPI:** Para la documentación interactiva y prueba de las APIs.
-*   **DotNetEnv:** Gestión de variables de entorno a través de archivos `.env`.
+El sistema está dividido en dominios clave. A continuación se detalla el estado de implementación actual:
 
-## 🚀 Configuración del Entorno de Desarrollo
+| Microservicio | Responsabilidad | Estado | Notas |
+| :--- | :--- | :---: | :--- |
+| **🔐 Usuarios.Api** | Auth, Roles, Gestión de Usuarios | ✅ **Estable** | Login con JWT funcional. Roles: Estudiante, Docente, Admin. |
+| **🎓 Estudiantes.Api** | Matrículas, Progreso, Dashboard | ✅ **Estable** | Integrado con Portal Estudiante. Consultas de cursos y notas operativas. |
+| **📚 Cursos.Api** | Catálogo, Contenido, Recursos | ✅ **Estable** | Gestión de cursos y materiales. Base NoSQL (MongoDB). |
+| **👨‍🏫 Docentes.Api** | Gestión de Cursos, Calificaciones | 🚧 **En Progreso** | Endpoint base creados. Pendiente: `CursosImpartidos` y flujo de gestión de notas. |
+| **📝 Evaluaciones.Api** | Exámenes, Tareas, Notas | 🚧 **En Progreso** | Estructura base lista. Integración con flujo docente en desarrollo. |
 
-Para poner en marcha la plataforma en tu entorno local, sigue estos pasos:
+## 🛠️ Stack Tecnológico
+
+*   **.NET 8 (C#):** Core del desarrollo.
+*   **Clean Architecture (CQRS + MediatR):** Patrón de diseño para desacoplar capas.
+*   **Bases de Datos:**
+    *   **PostgreSQL:** Relacional (Usuarios, Estudiantes, Docentes).
+    *   **MongoDB:** Documental (Cursos/Contenido).
+*   **RabbitMQ:** Mensajería asíncrona para eventos de dominio.
+*   **Docker:** (Opcional) Contenerización de servicios.
+
+## 🚀 Guía de Inicio Rápido
 
 ### 1. Requisitos Previos
+*   **.NET SDK 8.0+**
+*   **PostgreSQL** (Puerto default: 5432)
+*   **MongoDB** (Puerto default: 27017)
+*   **RabbitMQ** (Puerto default: 5672)
 
-Asegúrate de tener instaladas las siguientes herramientas y servicios:
-
-*   **.NET SDK:** Versión 8.0 o superior.
-*   **PostgreSQL:** Servidor de base de datos relacional.
-*   **MongoDB:** Servidor de base de datos NoSQL.
-*   **RabbitMQ:** Servidor de mensajería.
-
-#### 🐰 Instalación de RabbitMQ (sin Docker)
-
-Si prefieres no usar Docker, puedes instalar RabbitMQ y su dependencia Erlang directamente en tu sistema Windows:
-
-1.  **Instalar Erlang:**
-    *   Descarga la versión de Windows de 64 bits desde [https://www.erlang.org/downloads](https://www.erlang.org/downloads).
-    *   Ejecuta el instalador y sigue las instrucciones (opciones por defecto suelen ser suficientes).
-2.  **Instalar RabbitMQ Server:**
-    *   Descarga el instalador para Windows desde [https://www.rabbitmq.com/install-windows.html](https://www.rabbitmq.com/install-windows.html).
-    *   Ejecuta el instalador. RabbitMQ se instalará como un servicio de Windows y se iniciará automáticamente.
-3.  **Habilitar Plugin de Administración (Opcional pero Recomendado):**
-    *   Abre "RabbitMQ Command Prompt" como **administrador**.
-    *   Ejecuta: `rabbitmq-plugins enable rabbitmq_management`
-    *   **Reinicia el servicio de RabbitMQ:**
-        ```bash
-        net stop RabbitMQ
-        net start RabbitMQ
-        ```
-    *   Accede a la interfaz de administración en tu navegador: `http://localhost:15672` (usuario: `guest`, contraseña: `guest`).
-
-### 2. Archivo de Variables de Entorno (`.env`)
-
-Crea un archivo llamado `.env` en la **raíz de la carpeta `PlataformaAcademica`** con las siguientes variables. Este archivo es crucial para la configuración de las conexiones a las bases de datos y otros servicios.
-
-⚠️ **¡Importante!** Este archivo `.env` contiene credenciales sensibles y **NO DEBE SUBIRSE A TU REPOSITORIO GIT**. Ya está configurado en `.gitignore` para ser ignorado.
+### 2. Configuración (.env)
+Crea un archivo `.env` en la raíz de `PlataformaAcademica` (NO en `src`).
+*Nota: Este archivo es ignorado por git por seguridad.*
 
 ```env
-DB_CONNECTION_ESTUDIANTES="<Tu cadena de conexión PostgreSQL para Estudiantes>"
-DB_CONNECTION_DOCENTES="<Tu cadena de conexión PostgreSQL para Docentes>"
-DB_CONNECTION_USUARIOS="<Tu cadena de conexión PostgreSQL para Usuarios>"
-MONGO_CONNECTION_STRING="<Tu cadena de conexión MongoDB>"
-MONGO_DATABASE_NAME="<Tu nombre de base de datos MongoDB>"
-UrlRabbit="<Tu URL de conexión a RabbitMQ, ej: amqp://guest:guest@localhost:5672>"
-DB_CONNECTION_REDIS="<Tu cadena de conexión Redis, ej: localhost:6379>"
+# Bases de Datos
+DB_CONNECTION_ESTUDIANTES="Host=localhost;Database=Lumina_Estudiantes;Username=postgres;Password=tu_password"
+DB_CONNECTION_DOCENTES="Host=localhost;Database=Lumina_Docentes;Username=postgres;Password=tu_password"
+DB_CONNECTION_USUARIOS="Host=localhost;Database=Lumina_Usuarios;Username=postgres;Password=tu_password"
+MONGO_CONNECTION_STRING="mongodb://localhost:27017"
+MONGO_DATABASE_NAME="Lumina_Cursos"
+
+# Mensajería y Cache
+UrlRabbit="amqp://guest:guest@localhost:5672"
+DB_CONNECTION_REDIS="localhost:6379"
+
+# Gateway / URLs Internas
 UsuariosApiBaseUrl="http://localhost:5004"
-CursosApiBaseUrl="http://localhost:9999"
 DocentesApiBaseUrl="http://localhost:5002"
-GRAYLOG_HOST="graylog"
+CursosApiBaseUrl="http://localhost:9999"
+EstudiantesApiBaseUrl="http://localhost:5003"
 ```
-Asegúrate de reemplazar los valores entre `< >` con tus credenciales y configuraciones reales.
 
-## ▶️ Ejecución de los Microservicios
+### 3. Ejecución de Servicios
+Recomendamos usar pestañas separadas de terminal para cada servicio o un orquestador como Tye/Docker Compose.
 
-Para iniciar cada microservicio, abre una **nueva terminal** para cada uno, navega a la carpeta del proyecto API correspondiente y ejecuta `dotnet run`.
+```bash
+# Terminal 1: Usuarios (Puerto 5004)
+cd src/Usuarios/Usuarios.Api
+dotnet run
 
-### 1. 📚 Cursos.Api
+# Terminal 2: Estudiantes (Puerto 5003)
+cd src/Estudiantes/Estudiantes.Api
+dotnet run
 
-*   **Ruta:** `PlataformaAcademica/src/Cursos/Cursos.Api`
-*   **Comando:** `dotnet run`
-*   **Swagger UI (API REST):** `http://localhost:9999/swagger`
-*   **gRPC:** `http://localhost:5001`
+# Terminal 3: Docentes (Puerto 5002)
+cd src/Docentes/Docentes.Api
+dotnet run
 
-### 2. 👨‍🏫 Docentes.Api
+# Terminal 4: Cursos (Puerto 9999)
+cd src/Cursos/Cursos.Api
+dotnet run
+```
 
-*   **Ruta:** `PlataformaAcademica/src/Docentes/Docentes.Api`
-*   **Comando:** `dotnet run`
-*   **Swagger UI:** `http://localhost:5002/swagger`
+Accede a Swagger para probar: `http://localhost:5004/swagger` (Usuarios), etc.
 
-### 3. 🧑‍🎓 Estudiantes.Api
+## 🗓️ Roadmap Inmediato (Dic 2025)
+1.  **Finalizar Módulo Docente**: Implementar `GetCursosImpartidos` y registro de notas.
+2.  **Integración Frontend**: Conexión total con `lumina-core-portal`.
+3.  **Seguridad**: Refinar Guards y roles en Gateway.
 
-*   **Ruta:** `PlataformaAcademica/src/Estudiantes/Estudiantes.Api`
-*   **Comando:** `dotnet run`
-*   **Swagger UI:** `http://localhost:5003/swagger`
-
-### 4. 👤 Usuarios.Api
-
-*   **Ruta:** `PlataformaAcademica/src/Usuarios/Usuarios.Api`
-*   **Comando:** `dotnet run`
-*   **Swagger UI:** `http://localhost:5004/swagger`
-
-## 🤝 Contribución
-
-¡Las contribuciones son bienvenidas! Si deseas mejorar este proyecto, por favor, sigue estos pasos:
-1.  Haz un "fork" del repositorio.
-2.  Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
-3.  Realiza tus cambios y haz "commit" (`git commit -m 'feat: Añadir nueva funcionalidad'`).
-4.  Sube tus cambios a tu "fork" (`git push origin feature/nueva-funcionalidad`).
-5.  Abre un "Pull Request".
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+---
+*Lumina Core © 2025 - Desarrollado con ❤️ y .NET*

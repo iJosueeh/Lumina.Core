@@ -1,6 +1,7 @@
 using NoticiasEventos.Domain.Noticias;
 using NoticiasEventos.Domain.Noticias.ValueObjects;
 using NoticiasEventos.Domain.Eventos;
+using NoticiasEventos.Domain.Recursos;
 
 namespace NoticiasEventos.Infrastructure;
 
@@ -8,11 +9,13 @@ public class DataSeeder
 {
     private readonly INoticiaRepository _noticiaRepository;
     private readonly IEventoRepository _eventoRepository;
+    private readonly IRecursoRepository _recursoRepository;
 
-    public DataSeeder(INoticiaRepository noticiaRepository, IEventoRepository eventoRepository)
+    public DataSeeder(INoticiaRepository noticiaRepository, IEventoRepository eventoRepository, IRecursoRepository recursoRepository)
     {
         _noticiaRepository = noticiaRepository;
         _eventoRepository = eventoRepository;
+        _recursoRepository = recursoRepository;
     }
 
     public async Task SeedAsync()
@@ -145,5 +148,75 @@ public class DataSeeder
                 await _eventoRepository.AddAsync(evento);
             }
         }
+
+        // Seeding Recursos
+        var recursos = await _recursoRepository.GetAllAsync();
+        if (!recursos.Any())
+        {
+            var recursosToSeed = new List<Recurso>
+            {
+                Recurso.Create(
+                    "Guía Completa de Angular 17",
+                    "Manual oficial actualizado con las últimas características de Angular, incluyendo Signals y Standalone Components.",
+                    "https://angular.io",
+                    "PDF",
+                    "Guías",
+                    "Google Developer Team",
+                    DateTime.Now.AddDays(-5),
+                    true,
+                    "assets/images/resources/angular-guide.jpg"
+                ),
+                Recurso.Create(
+                    "Introducción a Clean Architecture en .NET",
+                    "Video tutorial explicativo sobre cómo estructurar microservicios utilizando Clean Architecture.",
+                    "https://youtube.com/watch?v=xyz123",
+                    "VIDEO",
+                    "Tutoriales",
+                    "Microsoft MVP",
+                    DateTime.Now.AddDays(-10),
+                    true,
+                    "assets/images/resources/clean-arch.jpg"
+                ),
+                Recurso.Create(
+                    "Patrones de Diseño: Singleton y Factory",
+                    "Artículo detallado sobre cuándo y cómo utilizar estos patrones creacionales en C#.",
+                    "https://refactoring.guru",
+                    "LINK",
+                    "Artículos",
+                    "Refactoring Guru",
+                    DateTime.Now.AddDays(-15),
+                    false,
+                    "assets/images/resources/patterns.jpg"
+                ),
+                Recurso.Create(
+                    "Documentación de MongoDb Driver para C#",
+                    "Referencia completa de la API del driver oficial de MongoDB para .NET.",
+                    "https://mongodb.com/docs/drivers/csharp",
+                    "LINK",
+                    "Documentación",
+                    "MongoDB Inc.",
+                    DateTime.Now.AddDays(-20),
+                    false,
+                    "assets/images/resources/mongo-docs.jpg"
+                ),
+                Recurso.Create(
+                    "Curso Avanzado de Docker y Kubernetes",
+                    "Serie de videos para dominar la orquestación de contenedores en entornos de producción.",
+                    "https://udemy.com",
+                    "VIDEO",
+                    "Cursos",
+                    "Docker Captain",
+                    DateTime.Now.AddDays(-2),
+                    true,
+                    "assets/images/resources/docker-course.jpg"
+                )
+            };
+
+            foreach (var recurso in recursosToSeed)
+            {
+                _recursoRepository.Add(recurso);
+            }
+        }
     }
 }
+

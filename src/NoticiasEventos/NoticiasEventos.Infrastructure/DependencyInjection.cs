@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using NoticiasEventos.Domain.Eventos;
 using NoticiasEventos.Domain.Noticias;
+using NoticiasEventos.Domain.Recursos;
 using NoticiasEventos.Infrastructure.Repositories;
 
 namespace NoticiasEventos.Infrastructure;
@@ -32,6 +33,7 @@ public static class DependencyInjection
 
         services.AddScoped<INoticiaRepository, NoticiaRepository>();
         services.AddScoped<IEventoRepository, EventoRepository>();
+        services.AddScoped<IRecursoRepository, RecursoRepository>();
         
         services.AddScoped<DataSeeder>();
 

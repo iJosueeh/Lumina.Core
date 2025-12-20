@@ -1,46 +1,59 @@
+using Evaluaciones.Domain.Evaluaciones;
+using Evaluaciones.Application.Services;
 using MediatR;
 
 namespace Evaluaciones.Application.Evaluaciones.GetEvaluacionesByEstudiante;
 
 internal sealed class GetEvaluacionesByEstudianteQueryHandler : IRequestHandler<GetEvaluacionesByEstudianteQuery, List<EvaluacionResponse>>
 {
-    public Task<List<EvaluacionResponse>> Handle(GetEvaluacionesByEstudianteQuery request, CancellationToken cancellationToken)
-    {
-        // MOCK DATA TEMPORAL
-        var evaluaciones = new List<EvaluacionResponse>
-        {
-            new(
-                Id: Guid.NewGuid(),
-                Titulo: "Examen Parcial de .NET",
-                CursoId: Guid.NewGuid(),
-                CursoNombre: "Desarrollo Web con .NET",
-                FechaInicio: DateTime.UtcNow.AddDays(1),
-                FechaFin: DateTime.UtcNow.AddDays(3),
-                FechaLimite: DateTime.UtcNow.AddDays(3),
-                DuracionMinutos: 60,
-                Duracion: 60,
-                Estado: "Pendiente",
-                Tipo: "Examen",
-                Intentos: 0,
-                IntentosMaximos: 1
-            ),
-            new(
-                Id: Guid.NewGuid(),
-                Titulo: "Quiz de Componentes",
-                CursoId: Guid.NewGuid(),
-                CursoNombre: "Frontend con Angular",
-                FechaInicio: DateTime.UtcNow.AddDays(2),
-                FechaFin: DateTime.UtcNow.AddDays(4),
-                FechaLimite: DateTime.UtcNow.AddDays(4),
-                DuracionMinutos: 30,
-                Duracion: 30,
-                Estado: "Pendiente",
-                Tipo: "Quiz",
-                Intentos: 0,
-                IntentosMaximos: 3
-            )
-        };
+    private readonly IEvaluacionRepository _evaluacionRepository;
+    private readonly IEstudiantesService _estudiantesService;
 
-        return Task.FromResult(evaluaciones);
+    public GetEvaluacionesByEstudianteQueryHandler(IEvaluacionRepository evaluacionRepository, IEstudiantesService estudiantesService)
+    {
+        _evaluacionRepository = evaluacionRepository;
+        _estudiantesService = estudiantesService;
+    }
+
+    public async Task<List<EvaluacionResponse>> Handle(GetEvaluacionesByEstudianteQuery request, CancellationToken cancellationToken)
+    {
+        // 1. Obtener IDs de cursos matriculados desde el microservicio de Estudiantes
+        var cursoIds = await _estudiantesService.GetCursosMatriculadosIdsAsync(request.EstudianteId, cancellationToken);
+        
+        if (!cursoIds.Any())
+        {
+            return new List<EvaluacionResponse>();
+        }
+
+        // 2. Obtener evaluaciones para esos cursos
+        var evaluaciones = await _evaluacionRepository.GetByCursoIdsAsync(cursoIds, cancellationToken);
+
+        // 3. Mappear respuesta
+        // Nota: En un escenario real, tambien deberiamos consultar si el estudiante ya envio la evaluacion
+        // para calcular "Intentos" y estado real ("Completado", "Pendiente").
+        // Por ahora, derivamos estado de la fecha limite.
+        
+        var response = evaluaciones.Select(e =>
+        {
+            var estado = DateTime.UtcNow > e.FechaFin ? "Vencido" : "Pendiente";
+            
+            return new EvaluacionResponse(
+                e.Id.Value,
+                e.Titulo,
+                e.CursoId,
+                "Curso " + e.CursoId.ToString().Substring(0, 8), // Placeholder nombre curso (necesitaria call a Cursos)
+                e.FechaInicio,
+                e.FechaFin,
+                e.FechaFin, // FechaLimite asumiendo es FechaFin
+                60, // Duracion placeholder
+                60,
+                estado,
+                e.TipoEvaluacion.ToString(),
+                0, // Intentos placeholder
+                1 // Max intentos placeholder
+            );
+        }).OrderBy(e => e.FechaLimite).ToList();
+
+        return response;
     }
 }

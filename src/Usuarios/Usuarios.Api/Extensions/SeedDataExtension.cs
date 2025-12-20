@@ -24,12 +24,12 @@ public static class SeedDataExtension
             roles = [
                 new {
                     id = Guid.NewGuid(),
-                    nombre = "Docente",
+                    nombre = "Teacher",
                     descripcion = "Usuario Docente"
                 },
                 new {
                     id = Guid.NewGuid(),
-                    nombre = "Estudiante",
+                    nombre = "Student",
                     descripcion = "Usuario Estudiante"
                 },
             ];
@@ -42,19 +42,67 @@ public static class SeedDataExtension
 
             connection.Execute(sqlInsertRoles,roles);
 
-              List<object> usuarios = new();
+            // Obtener IDs de roles para usuarios de prueba
+            var teacherRoleId = (Guid)((dynamic)roles[0]).id;
+            var studentRoleId = (Guid)((dynamic)roles[1]).id;
 
-              for (int i = 0; i < 100 ; i++)
-              {
-                 var fake = new Faker();
-                 int indexRol = fake.Random.Int(0,roles.Count()-1);
-                 var maximoFechaNacimiento = fake.Date.Past(50);
+            List<object> usuarios = new();
 
-                 var usuario = new 
-                 {
+            // USUARIOS DE PRUEBA CONOCIDOS (para login)
+            var testUsers = new[]
+            {
+                new {
+                    id = Guid.NewGuid(),
+                    nombre_usuario = "estudiante.test",
+                    password = BCrypt.Net.BCrypt.HashPassword("Test123!"),
+                    rol_id = studentRoleId,
+                    nombres_persona = "Juan Carlos",
+                    apellido_paterno = "Pérez",
+                    apellido_materno = "García",
+                    direccion_pais = "Perú",
+                    direccion_departamento = "Lima",
+                    direccion_provincia = "Lima",
+                    direccion_distrito = "San Isidro",
+                    direccion_calle = "Av. Javier Prado 123",
+                    fecha_nacimiento = new DateTime(2000, 5, 15),
+                    correo_electronico = "estudiante@lumina.edu",
+                    estado = "Activo",
+                    fecha_ultimo_cambio = DateTime.UtcNow
+                },
+                new {
+                    id = Guid.NewGuid(),
+                    nombre_usuario = "profesor.test",
+                    password = BCrypt.Net.BCrypt.HashPassword("Test123!"),
+                    rol_id = teacherRoleId,
+                    nombres_persona = "María Elena",
+                    apellido_paterno = "Rodríguez",
+                    apellido_materno = "López",
+                    direccion_pais = "Perú",
+                    direccion_departamento = "Lima",
+                    direccion_provincia = "Lima",
+                    direccion_distrito = "Miraflores",
+                    direccion_calle = "Av. Larco 456",
+                    fecha_nacimiento = new DateTime(1985, 8, 20),
+                    correo_electronico = "profesor@lumina.edu",
+                    estado = "Activo",
+                    fecha_ultimo_cambio = DateTime.UtcNow
+                }
+            };
+
+            usuarios.AddRange(testUsers);
+
+            // USUARIOS ALEATORIOS (para pruebas de volumen)
+            for (int i = 0; i < 50 ; i++)
+            {
+                var fake = new Faker();
+                int indexRol = fake.Random.Int(0,roles.Count()-1);
+                var maximoFechaNacimiento = fake.Date.Past(50);
+
+                var usuario = new 
+                {
                     id = Guid.NewGuid(),
                     nombre_usuario = fake.Person.UserName,
-                    password = fake.Person.UserName,
+                    password = BCrypt.Net.BCrypt.HashPassword(fake.Internet.Password(12)), // Contraseña hasheada
                     rol_id = (Guid)((dynamic)roles[indexRol]).id,
                     nombres_persona = fake.Person.FirstName,
                     apellido_paterno = fake.Person.LastName,
@@ -68,16 +116,16 @@ public static class SeedDataExtension
                     correo_electronico = fake.Person.Email,
                     estado = fake.PickRandom("Activo","Inactivo"),
                     fecha_ultimo_cambio = DateTime.UtcNow
-                 };
+                };
 
                 usuarios.Add(usuario);
-              }
+            }
 
-              const string sqlInsertUsuarios = """
+            const string sqlInsertUsuarios = """
                 INSERT INTO public.usuarios
                 (id,nombre_usuario,password,rol_id,nombres_persona,apellido_paterno,apellido_materno,direccion_pais,direccion_departamento,direccion_provincia,direccion_distrito,direccion_calle,fecha_nacimiento,correo_electronico,estado,fecha_ultimo_cambio)
                 values (@id,@nombre_usuario,@password,@rol_id,@nombres_persona,@apellido_paterno,@apellido_materno,@direccion_pais,@direccion_departamento,@direccion_provincia,@direccion_distrito,@direccion_calle,@fecha_nacimiento,@correo_electronico,@estado,@fecha_ultimo_cambio)
-              """;
+            """;
 
             connection.Execute(sqlInsertUsuarios,usuarios);
 

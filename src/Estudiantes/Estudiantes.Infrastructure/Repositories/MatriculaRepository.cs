@@ -16,4 +16,11 @@ internal sealed class MatriculaRepository : Repository<Matricula>, IMatriculaRep
             .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
     }
 
+    public async Task<List<Matricula>> GetByEstudianteIdAsync(Guid estudianteId, CancellationToken cancellationToken = default)
+    {
+        return await DbContext.Set<Matricula>()
+            .Include(m => m.Programacion)
+            .Where(m => m.EstudianteId == estudianteId)
+            .ToListAsync(cancellationToken);
+    }
 }

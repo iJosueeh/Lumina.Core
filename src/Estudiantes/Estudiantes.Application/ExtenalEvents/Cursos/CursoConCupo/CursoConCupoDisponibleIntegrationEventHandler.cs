@@ -27,7 +27,7 @@ internal sealed class CursoConCupoDisponibleIntegrationEventHandler : INotificat
 
         try
         { 
-                        matricula.ActualizarEstado(MatriculaEstados.CONFIRMADA);
+                        matricula.ActualizarEstado(MatriculaEstados.CONFIRMED);
             _matriculaRepository.Update(matricula);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
